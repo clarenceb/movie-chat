@@ -4,8 +4,6 @@
 
 **Movie Chat** is a Python-based demo application that lets you interactively query a movie database using natural language. It leverages Azure OpenAI for language understanding and Azure Managed Redis (with RediSearch/Vector Search) to store and search movie data efficiently. You can run the app in the console or with a Streamlit UI, ask questions about movies, actors, and years, and see how the app rewrites and contextualizes your queries using conversational history.
 
-**Optional**: Use the [Azure AI Agent Service](https://learn.microsoft.com/en-us/azure/ai-services/agents/overview) in the [Azure AI Foundry](https://learn.microsoft.com/en-us/azure/ai-foundry/what-is-azure-ai-foundry) to experiment and build your Movie Chat agent (see: [agent-service.md](./agent-service.md)).
-
 ## Prerequisities
 
 * [Azure subscription](https://azure.microsoft.com/en-au/pricing/purchase-options/azure-account/search) with access to [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service), [Azure Managed Redis](https://learn.microsoft.com/en-us/azure/redis/overview), [Azure AI Foundry](https://learn.microsoft.com/en-us/azure/ai-foundry/what-is-azure-ai-foundry) (optional)
@@ -159,11 +157,16 @@ rvl stats -i movieindex -u $redis_url
 * Tool to search bing images for a image of an actor and can display that in the chat
 * Add the Azure AI Agent Service steps into this README.md file
 
-# Credits
+## Extensions
+
+### Azure AI Agent Service
+Use the [Azure AI Agent Service](https://learn.microsoft.com/en-us/azure/ai-services/agents/overview) in the [Azure AI Foundry](https://learn.microsoft.com/en-us/azure/ai-foundry/what-is-azure-ai-foundry) to experiment and build your Movie Chat agent (see: [agent-service.md](./agent-service.md)).
+
+## Credits
 
 * [Azure Cache Redis Samples](https://github.com/Azure-Samples/azure-cache-redis-samples) / [Vector Similarity Search Open AI tutorial notebook](https://github.com/Azure-Samples/azure-cache-redis-samples/blob/main/tutorial/vector-similarity-search-open-ai/tutorial.ipynb) - this sample was the basis for the movie chat and provides the steps to obtain the movie list, create an index with Redis (based on Azure Cache for Redis) and perform some basis queries.
 
-# Resources
+## Resources
 
 * [Wikipedia Movie Plots](https://www.kaggle.com/datasets/jrobischon/wikipedia-movie-plots) dataset from Kaggle
 * [Vector Similarity Search Open AI tutorial notebook](https://github.com/Azure-Samples/azure-cache-redis-samples/blob/main/tutorial/vector-similarity-search-open-ai/tutorial.ipynb)
