@@ -1,5 +1,11 @@
 # Azure AI Agent Service Demo
 
+**Stay tuned**: Work in progress...
+
+* Steps to create and configure AI Foundry with supporting services
+* Steps test and deploy the Mermaid to Image custom tool
+* Steps to import that into Azure AI Agent Service
+
 ## System Prompt
 
 ```
@@ -105,3 +111,5 @@ With custom tool (`mermaidjs_to_image_tool`) added as an OpenAPI tool:
 * Find the 5 most recent Tom Cruise movies.  Render the result as a Mermaid mindmap diagram.  The root node is the Tom Cruise, linking to the years, and under each year the movie titles. 
 
 ## Show Mermaid to Image custom tool
+
+TODO
