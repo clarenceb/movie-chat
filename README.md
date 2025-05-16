@@ -76,18 +76,25 @@ Note: You need to populate the Redis password yourself.
 
 ```sh
 python movie-chat.py
-
-# What movies has Tom Cruise been in?
-# What actor did I just ask about?
-# What years has he been in movies?
-# Just display the years as a comma-separate list and nothing else
-# Tell me about Top Gun
-# q
 ```
 
 ![movie chat console](img/movie-chat-console.png "movie chat console")
 
+Sample dialogue:
+
+* What movies has Tom Cruise been in?
+* What years has he been in movies?
+* Show a table of his movies with year, and cast
+* Just display the years as a comma-separate list and nothing else
+* Tell me about Top Gun
+* Which movies did both Tom Cruise and Jamie Foxx star in?
+* Find me 3 sci-fi movies for this week's movie marathon, provide a short description for each choice.
+* Find me up to 3 movies released in 1987.
+* q
+
 ## Run the movie chat (Streamlit UI app)
+
+Try the sample dialogue from above (see console app steps) or try your own questions!
 
 ```sh
 streamlit run movie-chat-ui.py
