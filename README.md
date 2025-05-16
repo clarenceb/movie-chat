@@ -67,7 +67,7 @@ Or use the helper script to create the file for you:
 ## Create the normalised/fitlered movie chat file and Redis RediSearch index
 
 ```sh
-python movie-create-index.py
+python create-redis-index.py
 ```
 
 Note: You need to populate the Redis password yourself.

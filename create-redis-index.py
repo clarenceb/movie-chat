@@ -110,7 +110,7 @@ index_name = "movieindex"
 redis_url = "rediss://:" + REDIS_PASSWORD + "@"+ REDIS_ENDPOINT
 
 # Create and load redis with documents
-print("Creating document index, this may take 10+ minutes to complete...")
+print("Creating document index, this may take up to 30 mins to complete...")
 vectorstore = RedisVectorStore.from_documents(
     documents=movie_list,
     embedding=embedding,
