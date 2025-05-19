@@ -17,14 +17,12 @@ load_dotenv()
 API_KEY = os.getenv('API_KEY')
 RESOURCE_ENDPOINT = os.getenv('RESOURCE_ENDPOINT')
 DEPLOYMENT_NAME = os.getenv('DEPLOYMENT_NAME')
-MODEL_NAME = os.getenv('MODEL_NAME')
 REDIS_ENDPOINT = os.getenv('REDIS_ENDPOINT')
 REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
 
 print(f"RESOURCE_ENDPOINT: {RESOURCE_ENDPOINT}")
 print(f"REDIS_ENDPOINT: {REDIS_ENDPOINT}")
 print(f"DEPLOYMENT_NAME: {DEPLOYMENT_NAME}")
-print(f"MODEL_NAME: {MODEL_NAME}")
 
 ## Import dataset
 ## --------------

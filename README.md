@@ -53,7 +53,6 @@ Create a `.env` file with these values:
 API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 RESOURCE_ENDPOINT=https://xxxxxxxxxxxxxxx.openai.azure.com
 DEPLOYMENT_NAME=text-embedding-3-large
-MODEL_NAME=text-embedding-3-large
 REDIS_ENDPOINT=xxxxxxxxxxx.<region>.redis.azure.net:10000
 REDIS_PASSWORD=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```

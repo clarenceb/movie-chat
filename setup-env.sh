@@ -16,7 +16,6 @@ cat <<EOF > .env
 API_KEY=$openAIApiKey
 RESOURCE_ENDPOINT=$openAIServiceEndpoint
 DEPLOYMENT_NAME=text-embedding-3-large
-MODEL_NAME=text-embedding-3-large
 REDIS_ENDPOINT=$redisCacheEndpoint:10000
 REDIS_PASSWORD=$redisPassword
 EOF
