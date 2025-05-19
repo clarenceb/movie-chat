@@ -2,7 +2,7 @@
 
 <img src="img/movie-chat-title.jpg" alt="movie chat title" width="240"/>
 
-**Movie Chat** is a Python-based demo application that lets you interactively query a movie database using natural language. It leverages Azure OpenAI for language understanding and Azure Managed Redis (with RediSearch/Vector Search) to store and search movie data efficiently. You can run the app in the console or with a Streamlit UI, ask questions about movies, actors, and years, and see how the app rewrites and contextualizes your queries using conversational history.
+**Movie Chat** is a Python-based demo application that lets you interactively query a movie database using natural language. It leverages Azure OpenAI for language understanding and Azure Managed Redis (with RediSearch/Vector Search) to store and search movie data efficiently. You can run the app in the console or with a Streamlit UI, ask questions about movies and actors, find similar movies based on your favourite plot, and see how the app rewrites and contextualizes your queries using conversational history.
 
 ## Prerequisities
 

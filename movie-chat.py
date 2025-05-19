@@ -2,6 +2,9 @@ import os
 import time
 from typing import List
 from dotenv import load_dotenv
+from rich.console import Console
+from rich.prompt import Prompt
+from rich.text import Text
 
 from langchain_openai import AzureOpenAIEmbeddings
 from langchain_community.vectorstores import Redis as RedisVectorStore
@@ -29,6 +32,8 @@ REDIS_ENDPOINT = os.getenv('REDIS_ENDPOINT')
 REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
 DEBUG = os.getenv('DEBUG')
 
+console = Console()
+
 def get_system_prompt():
     return (
         "You are a movie buff assistant who can answer questions about movies, make suggestions, summarise key facts, and provide other useful movie information."
@@ -39,17 +44,23 @@ def get_system_prompt():
     )
 
 def display_answer(answer):
-    print(f'\nAnswer:\n{answer}')
+    console.print(f'\nAnswer:\n', style="yellow")
+    console.print(answer, style="white")
 
 def welcome_message():
-        print(f"""
+        console.print(f"""
 #     #                                          #####
 ##   ##   ####   #    #     #    ######         #     #  #    #    ##     #####
 # # # #  #    #  #    #     #    #              #        #    #   #  #      #
 #  #  #  #    #  #    #     #    #####          #        ######  #    #     #
 #     #  #    #  #    #     #    #              #        #    #  ######     #
 #     #  #    #   #  #      #    #              #     #  #    #  #    #     #
-#     #   ####     ##       #    ######          #####   #    #  #    #     #\n""")
+#     #   ####     ##       #    ######          #####   #    #  #    #     #\n""", style="bold green")
+
+def user_input_prompt() -> str:
+    prompt = Text("\nWhat's your question about movie(s)? ")
+    prompt.stylize("yellow")
+    return prompt
 
 contextualize_q_system_prompt = (
     "Given a chat history and the latest user question "
@@ -121,16 +132,15 @@ welcome_message()
 
 chat_history = []
 
-
-while True:    
-    question = input("\nWhat's your question about movie(s)? ")
+while True:
+    question = Prompt.ask(user_input_prompt())
     if question == 'q':
         print('Bye!')
         break
     elif question == '':
         welcome_message()
         chat_history = []
-        print(f'Starting a new conversation...\n')
+        console.print(f'Starting a new conversation...\n', style="yellow")
     else:
         try:
             if DEBUG:
