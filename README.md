@@ -151,6 +151,12 @@ rvl stats -i movieindex -u $redis_url
 
 ![Another Redis Desktop Manager](img/ardm.png "Another Redis Desktop Manager")
 
+## Deploy Movie Chat (Streamlit UI) to Azure Container Apps
+
+```sh
+# TODO
+```
+
 ## TODO
 
 * Use Azure Developer CLI to build and deploy everything (`azd up`)

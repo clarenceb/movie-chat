@@ -69,10 +69,14 @@ I can help you with anything related to movies! Here's what I can do:
 If you have a specific question or need suggestions, let me know!
 ```
 
-* Which movies has Tom Cruise been in?
+Type:
+
+* Suggest 3 movies about aliens and that are a comedy.
+
+Sample response:
 
 ```
-Sorry, I don't know. It seems I couldn't access the relevant data source to find the movies Tom Cruise has been in. If you have a dataset or file, you can upload it, and I can help analyze it!
+Sorry, I don't know.
 ```
 
 ## Add Knowledge
@@ -80,10 +84,57 @@ Sorry, I don't know. It seems I couldn't access the relevant data source to find
 - Azure AI Search with `movie_list.csv` indexed.  The file is delimited by ',' and vectorised on the plot.
 - Search type: Hybrid + semantic
 
+Type:
+
+* I've added a movie index for knowledge .  Try again.
+
+Sample response:
+
+```
+Here are three movies about aliens that incorporate comedy:
+
+Aliens in the Attic (2009) - A group of kids discovers aliens in their vacation home and must protect their family while engaging in comedic battles using homemade weapons 1 .
+Meet Dave (2008) - Eddie Murphy stars as a spaceship in human form, controlled by tiny alien beings. The aliens learn about human emotions and culture in this humorous adventure 2 .
+Spaced Invaders (1990) - A group of bumbling Martians lands on Earth and creates chaos in a small town, leading to comedic situations as they interact with humans 3 .
+```
+
+Try this:
+
+* Find me 3 sci-fi movies for this week's movie marathon, provide a short description for each choice.
+* Show that as a table with the movie name, cast, year of release and desription as columns.
+
 ## Add Tools
 
-- Code Interpreter, add file: `movie_list.csv`
-- Add custom tool using OpenAPI Spec: [mermaid-tool-func](https://github.com/clarenceb/mermaid-tool-func)
+- Code Interpreter, add file: `movie_list.csv` (this file is created locally after you run the file `./create-redis-index.py`)
+- Add custom tool using OpenAPI Spec([mermaid-tool-func](https://github.com/clarenceb/mermaid-tool-func)):
+
+* **Name**: mermaidjs_to_image_tool
+* **Description**: This tool uses an API that renders MermaidJS diagrams into PNG and SVG formats and provides URLs to both the rendered PNG and SVG image files. POST a Mermaid diagram in markdown format to /render and receive a JSON response with the image urls.
+* Define schema: <paste contents of openapi.json> or from [https://<your-app>.azurecontainerapps.io/openapi.json](https://<your-app>.azurecontainerapps.io/openapi.json)
+* Update the server url in the `openapi.json` file:
+
+```json
+"servers": [
+    {
+      "url": "https://<your-app>.azurecontainerapps.io"
+    }
+```
+
+Clear and type:
+
+* Which movies has Tom Cruise been in?  Just show me the most recent 10 in descending order.  Show the movie title, cast, plot, and year of release.
+* Update the plot with up to 5 words that capture the key themes
+
+Clear and type:
+
+* Show me a chart of all Movies count by year as a bar chart.
+* Show me a chart of all Movies count by year as a bar chart - annotate on the chart each year a "Mission: Impossible" movie was released (show which specific movie: original or sequel).  Also, for the year that the mission impossible movie was released, make that bar red.
+
+Clear and type:
+
+* Show me a Mermaid timeline diagram for Tom Cruise showing the year and movies he acted in for each year
+* Show me a mermaid pie chart for movies by top 10 genres and movie counts for those genres
+* Find the 5 most recent Tom Cruise movies.  Render the result as a Mermaid mindmap diagram.  The root node is the Tom Cruise, linking to the years, and under each year the movie titles.
 
 ## Sample chat questions
 
@@ -103,8 +154,8 @@ With Code Interpreter and `movie_list.csv` added:
 * Which movies has Tom Cruise been in?
 * How many movies has Tom Cruise been in?  Just show me the number and a list of the years ordered oldest to my recent.
 * Find the top 3 years that had the most movies in them.
-* Show me a chart of Movies count by year as a bar chart.
-* Show me a chart of Movies count by year as a bar chart - annotate on the chart each year a "Mission: Impossible" movie was released (show which specific movie: original or sequel).
+* Show me a chart of all Movies count by year as a bar chart.
+* Show me a chart of all Movies count by year as a bar chart - annotate on the chart each year a "Mission: Impossible" movie was released (show which specific movie: original or sequel).
 
 With custom tool (`mermaidjs_to_image_tool`) added as an OpenAPI tool:
 
