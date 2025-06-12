@@ -27,8 +27,7 @@ TODO:
 
 Access the Azure Portal
 
-* Create a Azure AI Hub
-* Create a new Azure AI Project
+* Create a new Azure AI Foundry Project
 * Launch the [Azure AI Foundry](https://ai.azure.com/) portal.
 * Access the "Agents" pane
 * Create a new Agent
@@ -154,8 +153,8 @@ With Code Interpreter and `movie_list.csv` added:
 * Which movies has Tom Cruise been in?
 * How many movies has Tom Cruise been in?  Just show me the number and a list of the years ordered oldest to my recent.
 * Find the top 3 years that had the most movies in them.
-* Show me a chart of all Movies count by year as a bar chart.
-* Show me a chart of all Movies count by year as a bar chart - annotate on the chart each year a "Mission: Impossible" movie was released (show which specific movie: original or sequel).
+* Create me a chart of all Movies count by year as a bar chart.
+* Create me a chart of all Movies count by year as a bar chart - annotate on the chart each year a "Mission: Impossible" movie was released (show which specific movie: original or sequel).  Also, for the year that the mission impossible movie was released, make that bar red.
 
 With custom tool (`mermaidjs_to_image_tool`) added as an OpenAPI tool:
 
@@ -191,3 +190,176 @@ Other:
 Run locally to show how it works, explore the code.
 
 Show the deployed version in Azure Container Apps.
+
+## Connected Agents
+
+Rearchitect the solution into a main movie chat agent that acts as a coordinator, utilising a number of Connected Agents in Azure AI Foundry Agent Service.
+It can also use its own tools, like Code Interpreter.
+
+### Main Agent
+
+**Movie Chat Agent**
+
+- **Description**: Answers movie related questions from the user using specialised connected agents.
+- **Instructions**:
+
+```
+You are an AI assistant who can answer questions about movies, make movie suggestions, summarise key facts (e.g. dates, cast, etc.), and perform aggregate and charting operations.
+
+Follow these rules:
+- Make use of the connected agents to perform the specific required actions and use the returned information to formulate a final answer to the user's input.
+- You can utilise more that one connected agent if a series of steps are required to arrived at the final answer.
+- Do your best to provide a complete answer but a partial answer is better than no answer.
+- Do not use movie facts in your pre-trained knowledge, rely on the connected agents to give you that information and use your reasoning skills to provide an appropriate answer to the user.
+- If you really do not know, just provide the reason to the user with a polite message.
+- If user asks for a chart, diagram or visualization (except for a Mermaid diagram), then ask connected agents for the required data only (DO NOT ask them for a chart/diagram/visualization) and then use your Code Interpreter to render the chart yourself using the results from the connected agent.
+```
+
+- **Knowledge**: None
+- **Connected Agent**: Movie Search Agent
+     - **Unique name**: MovieSearchAgent
+     - **Detail the steps to activate the agent**:
+
+     ```
+     You can use this connected agent to perform movie searches either with key words or semantic searches (e.g. find similar movies based on plot).
+     This agent should be used when a subset of movies need to be returned or analysed.
+     Examples for searching, the User might ask:
+     - Find me...
+     - Search for...
+     - Which movies has <actor/cast> been in?
+     - Who were the supporting cast in <movie>?
+     - Which movie did both <actor1> and <actor2> star in?
+     - Suggest 3 movies about aliens and that are a comedy
+     - Summarise the plot for <movie>
+     - Suggest a movie with a similar plot to <movie>
+     ```
+- **Connected Agent**: Movie Analysis Agent
+     - **Unique name**: MovieAnalysisAgent
+     - **Detail the steps to activate the agent**:
+
+     ```
+     You can use this connected agent to perform detailed movie analysis, aggregations, summaries, and graphical charting/plots of results (except Mermaid diagrams).
+     If a chart result is expected, then download the image from the connected agent.
+     Prefer to use this agent when you need to analyse, aggregate, or filter through all movies.
+     Examples for aggregations:
+     - How many movies has Tom Cruise been in?
+     - Find the top 3 years that had movies in them.
+     Examples for charting:
+     - Show me a chart of all Movies by year as a bar chart
+     ```
+- **Connected Agent**: Mermaid Diagram Agent
+     - **Unique name**: MermaidDiagramAgent
+     - **Detail the steps to activate the agent**:
+
+     ```
+     When you specifically need to render a Mermaid diagram as an image you can call this agent.  You need to supply valid Mermaid markdown (YAML) and you'll get back image links (urls) for a PNG and SVG image type.
+
+     Some chart type examples:
+
+     pie title NETFLIX
+     "Time spent looking for movie" : 90
+     "Time spent watching it" : 10
+
+     graph TD; A-->B; A-->C; B-->D; C-->D;
+     ```
+
+### Connected Agents Setup
+
+**Movie Search Agent**
+- **Description**: Search a knowledge base for movie information base on the user input.
+- **Instructions**:
+```
+You are a Movie Search AI Agent that uses the available knowledge base to find relevant movie information based on the input query.
+
+Follow these rules:
+* Always try searching any attached movie knowledge base, if available, before responding with your answer.
+* When searching against Azure AI Search, rewrite queries to be valid Apache Lucene queries against the index schema fields and use vector search for any vectorized fields.
+* Use case-insensitive searches
+```
+- **Knowledge**: movie-index (Azure AI Search index)
+- **Tools**: None
+
+**Movie Analysis Agent**
+
+- **Description**: Analyses and extracts movie data from files using Code Interpreter.
+- **Instructions**:
+
+```
+You are a Movie Analysis AI Agent that uses the Code Interpreter and attached file(s) to extract relevant movie facts, create summaries or aggregations across all matching movies.  You can also and plot results onto a diagram (if required), and perform any other analysis to meet the input query.
+
+Follow these rules:
+* To answer aggregation or charting queries, use the code interpreter with attached file(s).
+* Use the provided files with the code interpreter to answer queries that would require analysis of a full data set.
+* Examples for aggregations:
+     - How many movies has Tom Cruise been in? (where Tom Cruise here is the actor)
+     - Find the top 3 years that had movies in them.
+* Examples for charting:
+     - Show me a chart of Movies by year as a bar chart (this can use matplot library in the code interpreter)
+```
+
+- **Knowledge**: None
+- **Tools**: CodeInterpreter with the file: `movie_list.csv`
+
+**Mermaid Diagram Agent**
+
+- **Description**:
+```Renders images from Mermaid markdown input. e.g. graph TD; A-->B; A-->C; B-->D; C-->D;```
+- **Instructions**:
+```
+You are an AI agent that can render images from Mermaid diagrams (Markdown YAML).
+
+When supplied Mermaid Markdown input, you'll use the available tools to render it.
+
+Follow these rules:
+* Prefer to render to a PNG image and display it from the returned URLs in the tool response.
+* Ensure the image urls are not modified in anyway, don't add any leading or trailing chars, like backslashes "\", for example.
+* If the image urls schemes in the url is "http" then change it to be "https".
+* If the last char on any urls is a backslash ("\") then remove that char from the url.
+* DO NOT try to render the returned image URLs as Markdown.
+
+Some chart type examples:
+
+     pie title NETFLIX
+          "Time spent looking for movie" : 90
+          "Time spent watching it" : 10
+
+     graph TD; A-->B; A-->C; B-->D; C-->D;
+
+You will respond with this HTML message:
+
+Here is your <a href="<insert-SVG-image-url-here>" target="_blank">**Mermaid Diagram** (click to view)</a> or see preview below:
+<p>
+<img src="<insert-PNG-image-url-here>" />
+</p>
+```
+
+- **Knowledge**: None
+- **Tools**: OpenAPI 3.0 specified tool (`mermaidjs_to_image_tool`)
+
+## Main Agent Queries
+
+Searches:
+* Suggest 3 movies about aliens and that are a comedy.
+* Present those as a table (title, plot, year)
+* Find me 3 sci-fi movies for this week's movie marathon, provide a short description for each choice.
+* What movie genres do you know about?  Limit to the top 10.
+
+Charts:
+* Get me all the movie counts by year (limit to the last 30 years) and also all the years for Mission Impossible movies.  Create a bar chart of the results and annotate the year where a mission impossible movie was released (note if it is the original or a sequel).  For the year that the Mission Impossible movie was released, colour that bar red in the chart.
+
+Mermaid diagrams:
+* Find the 5 most recent Tom Cruise movies.  Render the result as a Mermaid mindmap diagram.  The root node is the Tom Cruise, linking to the years, and under each year the movie titles.
+* Show me a Mermaid timeline diagram for Tom Cruise showing the year and movies he acted in for each year
+* Show me a mermaid pie chart for movies by top 10 genres and movie counts for those genres
+
+## Using Azure AI SDK
+
+- TODO
+
+## Using Sematic Kernel Agents Framework with Azure AI Agents
+
+- TODO
+
+## Movie Chat UI (Streamlit)
+
+- TODO: Using Semantic Kernel
