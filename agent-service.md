@@ -1,22 +1,20 @@
 # Azure AI Agent Service Demo
 
-This is a interactive demo showing how to build an agent in the Azure AI Foundry and Azure AI Agent Service.
+This is a interactive demo showing how to migrate the `movie-chat` app into an agent using the Azure AI Foundry service.
 
 It leverages the same data source from the `movie-chat` demo in this repository.
 
 ## Services used
 
-* Azure AI Foundry
-* Azure AI Agent Service
+* Azure AI Foundry + Agent Service + Azure OpenAI Service (integrated via AI Foundry Project resource)
 * Azure AI Search
-* Azure OpenAI Service
-* Azure Container Apps (for the custom Mermaid to Image tool)
+* Azure Container Apps (for the custom Mermaid to Image tool; optionally, to deploy the Movie Chat app)
 
 ## Stay tuned - Work in progress...
 
 TODO:
 
-* Steps to create and configure AI Foundry with supporting services
+* IaC for the steps to create and configure AI Foundry with supporting services
 * Steps test and deploy the Mermaid to Image custom tool to Azure Container Apps
 * Steps to import the Mermaid to Image tool into Azure AI Agent Service
 * Steps to test in the Agents Playground
@@ -27,22 +25,73 @@ TODO:
 
 Access the Azure Portal
 
-* Create a new Azure AI Foundry Project
 * Launch the [Azure AI Foundry](https://ai.azure.com/) portal.
+* Create a new Azure AI Foundry Project resource (not the older Hub-based project): `movie-chat-agent`
+* Set the resource group to be `rg-movie-chat-agent`
+* Create a deployment of `gpt-4o` or your preferred model
 * Access the "Agents" pane
-* Create a new Agent
+* Create a new Agent called `movie-agent`
+* Agent description (optional): Movie AI assistant that helpfully answers your questions about movies and movie choices.
 * Configure these parameters:
      * Temperature: 0.5
      * Top_P: 1.0
 
-
 ## Configure the System Prompt
 
-Use this [System Prompt - Agent Service](./system_prompt_agent_service.md)
+Use the contents of this [System Prompt - Agent Service](./system_prompt_agent_service.md) for the `Instructions` field.
+
+Note, this is for the monolthic agent setup.  See below for the Connected Agents setup.
+
+## Create a Blob storage account for the movie data
+
+* Create a new Storage Account, e.g. `moviedata1234`
+* Select the new storage account
+* Select Click Data storage / Containers
+* Click "Add Container" called `movies`
+* Select the `movies` container and click "Upload"
+* Upload the `movie_list.csv` file
+
+## Create an Azure OpenAI service for the integrated vectorisation for AI Search
+
+* Create an Azure OpenAI service, e.g. `movie-chat-models`
+* Open the resource with the AI Foundry portal view
+* Add a Deployment for "text-embedding-3-large" with the defaults
+
+## Create the Movie AI Search instance
+
+* Create a new AI Search instance `movie-chat-search` in the AI Foundry Project reousrce group `rg-movie-chat-agent` (name must be unique, so add a suffix to the name if required)
+* Choose `Standard` tier
+* Keep the defaults for the remaining settings
+* Proceed to **Create** the instance
+
+## Create the movie index
+
+* Select your new AI Search instance
+* Click "Import and vectorize data"
+* Select "Azure Blob Storage"
+* Select "RAG" for your scenario
+* Select your storage account and Blob container `movies`
+* Select "Delimited text" for Parsing mode with Delimiter character as `,` and First line contains header is Checked (true)
+* Click Next
+* Select "plot" for column to vectorize
+* Kind: Azure OpenAI
+* Select your Azure OpenAI service with the embedding model deployment you created earlier
+* Use API key for Authentication type
+* Click Next
+* Enable Semantic ranker - Checked (true)
+* Click Preview and edit fields
+* Change the following Target index field names:
+     * title -> movie_title
+     * origin -> country_of_origin
+* Accept changes and click next with "Once" as the Schedule
+* Set index name to be "movie-index"
+* Click "Create"
+* Wait for the index to be created (check the "Indexers", indexer should have Status "Completed" and the "Indexes" document count should be greater than 0)
+
 
 ## Test the New Agent
 
-Ask these questions:
+Click `Try in playground` to test the agent in it's current configuration and ask these questions:
 
 * Hi, what can you do?
 
@@ -191,31 +240,34 @@ Run locally to show how it works, explore the code.
 
 Show the deployed version in Azure Container Apps.
 
-## Connected Agents
+## Connected Agents (splitting up monolithic agent into composable agents and a orchestration agent)
 
 Rearchitect the solution into a main movie chat agent that acts as a coordinator, utilising a number of Connected Agents in Azure AI Foundry Agent Service.
+
 It can also use its own tools, like Code Interpreter.
 
 ### Main Agent
 
 **Movie Chat Agent**
 
-- **Description**: Answers movie related questions from the user using specialised connected agents.
+- **Description**: Answers movie related questions and fulfills tasks requested by the user using specialised connected agents.
 - **Instructions**:
 
 ```
-You are an AI assistant who can answer questions about movies, make movie suggestions, summarise key facts (e.g. dates, cast, etc.), and perform aggregate and charting operations.
+You are an AI assistant who can answer questions about movies, make movie suggestions, summarise key movie facts (e.g. release dates, cast, etc.), and perform aggregate and charting operations on movie data.
 
 Follow these rules:
-- Make use of the connected agents to perform the specific required actions and use the returned information to formulate a final answer to the user's input.
-- You can utilise more that one connected agent if a series of steps are required to arrived at the final answer.
+- Make use of the Connected Agents to perform the specific required actions and use the returned information to formulate a final answer to the user's input.
+- You can formulate a multi-step plan and then utilise more that one Connected Agent if a series of steps are required to arrived at the final answer.
 - Do your best to provide a complete answer but a partial answer is better than no answer.
-- Do not use movie facts in your pre-trained knowledge, rely on the connected agents to give you that information and use your reasoning skills to provide an appropriate answer to the user.
+- Do not use movie facts in your pre-trained knowledge, rely only on the Connected Agents to give you that information and use your reasoning skills to provide an appropriate answer to the user.
 - If you really do not know, just provide the reason to the user with a polite message.
 - If user asks for a chart, diagram or visualization (except for a Mermaid diagram), then ask connected agents for the required data only (DO NOT ask them for a chart/diagram/visualization) and then use your Code Interpreter to render the chart yourself using the results from the connected agent.
 ```
 
 - **Knowledge**: None
+- **Tools**: Code Interpreter (optional) - if you want to create plots of request or perform further analysis on the results from connected agents
+
 - **Connected Agent**: Movie Search Agent
      - **Unique name**: MovieSearchAgent
      - **Detail the steps to activate the agent**:
@@ -238,7 +290,7 @@ Follow these rules:
      - **Detail the steps to activate the agent**:
 
      ```
-     You can use this connected agent to perform detailed movie analysis, aggregations, summaries, and graphical charting/plots of results (except Mermaid diagrams).
+     You can use this connected agent to perform detailed movie analysis, aggregations, summaries, etc.
      If a chart result is expected, then download the image from the connected agent.
      Prefer to use this agent when you need to analyse, aggregate, or filter through all movies.
      Examples for aggregations:
@@ -345,6 +397,7 @@ Searches:
 * What movie genres do you know about?  Limit to the top 10.
 
 Charts:
+* Get me all the movie counts by year (limit to the last 30 years).  Create a bar chart of the results.
 * Get me all the movie counts by year (limit to the last 30 years) and also all the years for Mission Impossible movies.  Create a bar chart of the results and annotate the year where a mission impossible movie was released (note if it is the original or a sequel).  For the year that the Mission Impossible movie was released, colour that bar red in the chart.
 
 Mermaid diagrams:

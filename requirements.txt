@@ -8,3 +8,4 @@ langchain-text-splitters==0.3.7
 python-dotenv==1.0.1
 streamlit==1.44.1
 rich==14.0.0
+num2words==0.5.14
