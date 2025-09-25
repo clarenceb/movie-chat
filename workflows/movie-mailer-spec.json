@@ -1,0 +1,101 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Movie Helpers",
+        "description": "Movie Helper APIs",
+        "version": "1.0"
+    },
+    "servers": [{
+        "url": "https://xxxxxxxxxxxxxx.azure-api.net/moviehelpers"
+    }],
+    "paths": {
+        "/moviemailer": {
+            "post": {
+                "summary": "moviemailer",
+                "description": "Mail a movie list name and movies to a user",
+                "operationId": "moviemailer",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/movie-list"
+                            },
+                            "example": {
+                                "movie-list-name": "Weekend Watchlist",
+                                "recipient-email": "someone@example.com",
+                                "movies": [{
+                                    "title": "Inception",
+                                    "genre": "Science Fiction",
+                                    "year": 2010
+                                }, {
+                                    "title": "The Grand Budapest Hotel",
+                                    "genre": "Comedy",
+                                    "year": 2014
+                                }, {
+                                    "title": "Parasite",
+                                    "genre": "Thriller",
+                                    "year": 2019
+                                }]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "movie-list": {
+                "type": "object",
+                "properties": {
+                    "movie-list-name": {
+                        "type": "string"
+                    },
+                    "recipient-email": {
+                        "type": "string"
+                    },
+                    "movies": {
+                        "type": "array",
+                        "items": {
+                            "required": ["title", "genre", "year"],
+                            "type": "object",
+                            "properties": {
+                                "title": {
+                                    "type": "string"
+                                },
+                                "genre": {
+                                    "type": "string"
+                                },
+                                "year": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "apiKeyHeader": {
+                "type": "apiKey",
+                "name": "Ocp-Apim-Subscription-Key",
+                "in": "header"
+            },
+            "apiKeyQuery": {
+                "type": "apiKey",
+                "name": "subscription-key",
+                "in": "query"
+            }
+        }
+    },
+    "security": [{
+        "apiKeyHeader": []
+    }, {
+        "apiKeyQuery": []
+    }]
+}

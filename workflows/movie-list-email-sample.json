@@ -1,0 +1,15 @@
+{
+  "movie-list-name": "weekend marathon",
+  "recipient-email": "<recipient@example.com>",
+  "movies": [{
+      "title": "Top Gun",
+      "year": 1993,
+      "genre": "action"
+  },
+  {
+      "title": "Aliens",
+      "year": 1996,
+      "genre": "sci-fi"
+  }
+  ]  
+}
